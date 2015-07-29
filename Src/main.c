@@ -132,9 +132,22 @@ HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
 	  LCDcursorRight(4);
 	  LCDcursorLeft(2);
 	  
-	  LCDstring("777");
-	  
-	  HAL_Delay(5000);
+	  LCDstring("888");
+	  LCDcursorOnBlink();
+	  HAL_Delay(2000);
+	  LCDcursorOn();
+	  HAL_Delay(2000);
+	  LCDcursorOFF();
+	  HAL_Delay(2000);
+	  LCDblank();
+	  HAL_Delay(2000);
+	  LCDvisible();
+	  HAL_Delay(2000);
+	  LCDshiftLeft(3);
+		  
+		HAL_Delay(2000);
+		LCDshiftRight(3);
+		HAL_Delay(5000);
 
 	//	a = HAL_GPIO_ReadPin()
   /* USER CODE END WHILE */

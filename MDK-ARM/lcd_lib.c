@@ -275,35 +275,48 @@ void LCDshiftLeft(uint8_t n)	//Scrol n of characters Right
 {
 	for (uint8_t i=0;i<n;i++)
 	{
-		LCDsendCommand(0x1E);
+		//LCDsendCommand(0x1E);
+		LCDsendCommand(LCD_MOVE | LCD_MOVE_DISP | !LCD_MOVE_RIGHT);
 	}
 }
 void LCDshiftRight(uint8_t n)	//Scrol n of characters Left
 {
 	for (uint8_t i=0;i<n;i++)
 	{
-		LCDsendCommand(0x18);
+		//LCDsendCommand(0x18);
+		LCDsendCommand(LCD_MOVE | LCD_MOVE_DISP | LCD_MOVE_RIGHT);
 	}
 }
 void LCDcursorOn(void) //displays LCD cursor
 {
-	LCDsendCommand(0x0E);
+	//LCDsendCommand(0x0E);
+	LCDsendCommand(LCD_ON_CTRL | LCD_ON_DISPLAY | 
+		LCD_ON_CURSOR | !LCD_ON_BLINK);
 }
 void LCDcursorOnBlink(void)	//displays LCD blinking cursor
 {
-	LCDsendCommand(0x0F);
+	LCDsendCommand(LCD_ON_CTRL | LCD_ON_DISPLAY | 
+		LCD_ON_CURSOR | LCD_ON_BLINK);
 }
+
+
 void LCDcursorOFF(void)	//turns OFF cursor
 {
-	LCDsendCommand(0x0C);
+	//LCDsendCommand(0x0C);
+	LCDsendCommand(LCD_ON_CTRL | LCD_ON_DISPLAY | 
+		!LCD_ON_CURSOR | !LCD_ON_BLINK);
 }
 void LCDblank(void)		//blanks LCD
 {
-	LCDsendCommand(0x08);
+	//LCDsendCommand(0x08);
+	LCDsendCommand(LCD_ON_CTRL | !LCD_ON_DISPLAY | 
+		!LCD_ON_CURSOR | !LCD_ON_BLINK);
 }
 void LCDvisible(void)		//Shows LCD
 {
-	LCDsendCommand(0x0C);
+	//LCDsendCommand(0x0C);
+	LCDsendCommand(LCD_ON_CTRL | LCD_ON_DISPLAY | 
+		!LCD_ON_CURSOR | !LCD_ON_BLINK);
 }
 void LCDcursorLeft(uint8_t n)	//Moves cursor by n poisitions left
 {

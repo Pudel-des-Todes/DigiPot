@@ -46,14 +46,15 @@
 #define LCD_WRITE_DELAY_MS 1
 
 #define LCD_CLR             0x01	//DB0: clear display
-#define LCD_HOME            (1<<1)	//DB1: return to home position
+#define LCD_HOME            0x02	//DB1: return to home position
 #define LCD_ENTRY_MODE      2	//DB2: set entry mode
 #define LCD_ENTRY_INC       1	//DB1: increment
 #define LCD_ENTRY_SHIFT     0	//DB2: shift
-#define LCD_ON_CTRL         3	//DB3: turn lcd/cursor on
-#define LCD_ON_DISPLAY      2	//DB2: turn display on
-#define LCD_ON_CURSOR       1	//DB1: turn cursor on
-#define LCD_ON_BLINK        0	//DB0: blinking cursor
+// Dusplay and Cursor on/off control
+#define LCD_ON_CTRL         0x08	//DB3: turn lcd/cursor on
+#define LCD_ON_DISPLAY      0x04	//DB2: turn display on (0-> display off)
+#define LCD_ON_CURSOR       0x02	//DB1: turn cursor on  (0-> cursor off)
+#define LCD_ON_BLINK        0x01	//DB0: blinking cursor  (0-> blink off)
 // Cursor or Display shift
 #define LCD_MOVE            0x10	//DB4: move cursor/display
 #define LCD_MOVE_DISP       0x08	//DB3: move display (0-> move cursor)

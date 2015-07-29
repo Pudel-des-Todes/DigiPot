@@ -1,3 +1,20 @@
+# Keil specific
+*.axf
+*.htm
+*.Inp
+*.map
+*.tra
+*.dep
+*.__i
+*.crf
+*.d
+*.o
+*.lst
+*.lnp
+*.bak
+*.Vishwas
+
+
 # Object files
 *.o
 *.ko
@@ -30,3 +47,5 @@
 
 # Debug files
 *.dSYM/
+
+
