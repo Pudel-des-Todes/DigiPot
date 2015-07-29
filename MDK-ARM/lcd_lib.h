@@ -47,9 +47,10 @@
 
 #define LCD_CLR             0x01	//DB0: clear display
 #define LCD_HOME            0x02	//DB1: return to home position
-#define LCD_ENTRY_MODE      2	//DB2: set entry mode
-#define LCD_ENTRY_INC       1	//DB1: increment
-#define LCD_ENTRY_SHIFT     0	//DB2: shift
+// Entry mode 
+#define LCD_ENTRY_CMD		0x04	//DB2: set entry mode
+#define LCD_ENTRY_INC       0x02	//DB1: increment
+#define LCD_ENTRY_SHIFT     0x01	//DB2: shift
 // Dusplay and Cursor on/off control
 #define LCD_ON_CTRL         0x08	//DB3: turn lcd/cursor on
 #define LCD_ON_DISPLAY      0x04	//DB2: turn display on (0-> display off)
@@ -63,8 +64,8 @@
 #define LCD_FUNCTION_8BIT   4	//DB4: set 8BIT mode (0->4BIT mode)
 #define LCD_FUNCTION_2LINES 3	//DB3: two lines (0->one line)
 #define LCD_FUNCTION_10DOTS 2	//DB2: 5x10 font (0->5x7 font)
-#define LCD_CGRAM           6	//DB6: set CG RAM address
-#define LCD_DDRAM           7	//DB7: set DD RAM address
+#define LCD_CGRAM           0x40	//DB6: set CG RAM address
+#define LCD_DDRAM           0x80	//DB7: set DD RAM address
 // reading:
 #define LCD_BUSY            7	//DB7: LCD is busy
 #define LCD_LINES			2	//visible lines
@@ -84,8 +85,11 @@ void LCDstring(char*);	//Outputs string to LCD
 void LCDbytes(char*, unsigned char);	//Outputs byte array to LCD
 void LCDGotoXY(unsigned char, unsigned char);	//Cursor to X Y position
 
+
+
 void LCDclr(void);				//Clears LCD
 void LCDhome(void);			//LCD cursor home
+void LCD_entry_mode_set(uint8_t argument);
 void LCDdefinechar(const uint8_t *,uint8_t);//write char to LCD CGRAM 
 void LCDshiftRight(uint8_t);	//shift by n characters Right
 void LCDshiftLeft(uint8_t);	//shift by n characters Left

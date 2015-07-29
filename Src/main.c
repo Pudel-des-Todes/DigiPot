@@ -33,6 +33,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 #include "..\MDK-ARM\lcd_lib.h"
+#include "..\MDK-ARM\timer3_handler.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -67,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM3) {			
-
+		timer3_interrup_handler();
 	}
 }
 
@@ -111,9 +112,9 @@ HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
 	//printf("%d",len);
 	
 	
-	char strBuffer[16];
-	sprintf(strBuffer,"len: %02d", len);
-	LCDstring(strBuffer);
+	//char strBuffer[16];
+	//sprintf(strBuffer,"len: %02d", len);
+	//LCDstring(strBuffer);
 	
 	LCDGotoXY(1,1);
 	LCDstring("POTATOS");
@@ -126,28 +127,11 @@ HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
 	  HAL_Delay(100);
 		LCDstring("POTATOS");
 	  HAL_Delay(1000);
-	  LCDhome();
-	 LCDstring("666");
+	  LCDGotoXY(5,1);
 	  HAL_Delay(1000);
-	  LCDcursorRight(4);
-	  LCDcursorLeft(2);
-	  
-	  LCDstring("888");
-	  LCDcursorOnBlink();
-	  HAL_Delay(2000);
-	  LCDcursorOn();
-	  HAL_Delay(2000);
-	  LCDcursorOFF();
-	  HAL_Delay(2000);
-	  LCDblank();
-	  HAL_Delay(2000);
-	  LCDvisible();
-	  HAL_Delay(2000);
-	  LCDshiftLeft(3);
-		  
-		HAL_Delay(2000);
-		LCDshiftRight(3);
-		HAL_Delay(5000);
+	  LCDstring("POTATOS");
+	  HAL_Delay(1000);
+
 
 	//	a = HAL_GPIO_ReadPin()
   /* USER CODE END WHILE */

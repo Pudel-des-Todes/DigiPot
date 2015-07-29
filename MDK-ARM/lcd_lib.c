@@ -236,7 +236,7 @@ void LCDGotoXY(uint8_t x, uint8_t y)	//Cursor to X Y position
 		default: DDRAMAddr = LCD_LINE0_DDRAMADDR+x;
 	}
 	// set data address
-	LCDsendCommand(1<<LCD_DDRAM | DDRAMAddr);	
+	LCDsendCommand(LCD_DDRAM | DDRAMAddr);	
 }
 
 
@@ -268,7 +268,9 @@ void LCDhome(void)			//LCD cursor home
 	LCDsendCommand(LCD_HOME);
 }
 
-
+void LCD_entry_mode_set(uint8_t argument) {
+	LCDsendCommand(LCD_ENTRY_CMD | argument);
+}
 
 
 void LCDshiftLeft(uint8_t n)	//Scrol n of characters Right
