@@ -11,3 +11,6 @@ SourcePath=D:/Dropbox/uC/STM32/Nucleo STM32F091RC/DigiPot/DigoPot_Keil/Src
 SourceFiles=stm32f0xx_it.h;stm32f0xx_hal_conf.h;stm32f0xx_it.c;stm32f0xx_hal_msp.c;main.c;
 HeaderFiles=stm32f0xx_it.h;stm32f0xx_hal_conf.h;
 
+[]
+SourceFiles=;;
+

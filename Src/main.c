@@ -32,11 +32,10 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
-#include "..\MDK-ARM\lcd_lib.h"
-#include "..\MDK-ARM\timer3_handler.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "..\MDK-ARM\lcd_lib.h"
+#include "..\MDK-ARM\timer3_handler.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -94,10 +93,9 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
-HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
-	LCDinit();
-HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
+
   /* USER CODE BEGIN 2 */
+	LCDinit();
 	HAL_TIM_Base_Start_IT(&htim3);
 	//LCDstring("potatos");
   /* USER CODE END 2 */
@@ -105,37 +103,23 @@ HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-//	char *string = 
-  uint8_t* s = "POTATOS\r\n";
-  uint8_t len = strlen((char*)s);
-
-	//printf("%d",len);
-	
-	
-	//char strBuffer[16];
-	//sprintf(strBuffer,"len: %02d", len);
-	//LCDstring(strBuffer);
-	
-	LCDGotoXY(1,1);
-	LCDstring("POTATOS");
-  
+   
   while (1)
   {
-	//LCDstring("potatos");
-	 //HAL_UART_Transmit(&huart2,s,len,999);
-	  LCDclr();	  
-	  HAL_Delay(100);
+
+		LCDclr();
+		HAL_Delay(100);
 		LCDstring("POTATOS");
-	  HAL_Delay(1000);
-	  LCDGotoXY(5,1);
-	  HAL_Delay(1000);
-	  LCDstring("POTATOS");
-	  HAL_Delay(1000);
+		HAL_Delay(1000);
+		LCDGotoXY(5,1);
+		HAL_Delay(1000);
+		LCDstring("POTATOS");
+		HAL_Delay(1000);
 
 
 	//	a = HAL_GPIO_ReadPin()
   /* USER CODE END WHILE */
-		
+
   /* USER CODE BEGIN 3 */
 		//HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 		//HAL_Delay(1000);
@@ -152,7 +136,7 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
- 
+
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
@@ -285,19 +269,19 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : PC7 */
   GPIO_InitStruct.Pin = GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA9 */
   GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB6 */
   GPIO_InitStruct.Pin = GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
