@@ -197,12 +197,18 @@ void LCDinit(void)//Initializes LCD
 //   Write data functions
 ////////////////////////////
 
-void LCDstring(char* data)	//Outputs string to LCD
+void LCDstring(char* string)	//Outputs string to LCD
 {
-	while (*data) {
-		LCDsendChar(*data);
-		data++;
+	while (*string) {
+		LCDsendChar(*string);
+		string++;
 	}
+}
+
+void LCDstringDefinedPos(char* string, uint8_t x, uint8_t y){
+	
+	LCDGotoXY(x,y);
+	LCDstring(string);
 }
 
 
