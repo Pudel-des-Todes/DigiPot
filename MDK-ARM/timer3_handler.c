@@ -64,8 +64,12 @@ static void ScanKeyboard(void) {
 	
 	
 	if (rotaryCH1State != rotaryCH1PrevState) {
-		rotaryCH1PrevState = (rotaryCH1State == GPIO_PIN_SET) ? 
-			GPIO_PIN_RESET : GPIO_PIN_SET;
+	
+		if (rotaryCH1PrevState == GPIO_PIN_SET) {
+			rotaryCH1PrevState = GPIO_PIN_RESET;
+		} else {
+			rotaryCH1PrevState = GPIO_PIN_SET;
+		}
 		
 		if (rotaryCH1PrevState == rotaryCH2State) {			
 			rotaryPosition--;
