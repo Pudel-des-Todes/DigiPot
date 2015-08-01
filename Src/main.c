@@ -103,26 +103,42 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-   
+  const uint16_t loopDelayDefault = 100;
+  uint16_t loopDelay ;
+  uint16_t aliveCounter = 10;
+
+
   while (1)
   {
+	loopDelay = loopDelayDefault;
+	LCDclr();
+   
+	
+	switch (getRotaryEvent()) {
+		case ROTARY_IDLE: 
+			break;
+		case ROTARY_PUSH: 
+			LCDstringDefinedPos("PUSH", (16-4)/2, 0); 
+			loopDelay = 2000;
+			break;		
+		case ROTARY_CW: 
+			LCDstringDefinedPos("=>", 14, 0); 
+			loopDelay = 100;
+			break;
+		case ROTARY_CCW: 
+			LCDstringDefinedPos("<=", 0, 0); 
+			loopDelay = 100;
+			break;
+		default:
+			break;
+	}
+	
+	HAL_Delay(loopDelay);
+	
 
-		LCDclr();
-		HAL_Delay(100);
-		LCDstring("POTATOS");
-		HAL_Delay(1000);
-		LCDGotoXY(5,1);
-		HAL_Delay(1000);
-		LCDstring("POTATOS");
-		HAL_Delay(1000);
-
-
-	//	a = HAL_GPIO_ReadPin()
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-		//HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
-		//HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 
