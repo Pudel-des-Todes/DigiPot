@@ -7,7 +7,7 @@
 #define KEYBOARD_ROTATY_CH2 GPIOC,GPIO_PIN_7
 
 #define ROTARY_POS_MIN (0)
-#define ROTARY_POS_MAX (255)
+#define ROTARY_POS_MAX (40)
 
 static void ScanKeyboard(void); 
 
@@ -26,8 +26,7 @@ static void ScanKeyboard(void) {
 	static uint8_t rotaryBtnTrigger = 1;
 	static GPIO_PinState rotaryBtnState, rotaryBtnPrevState;
 	
-	static GPIO_PinState rotaryCH1State, rotaryCH1PrevState ;
-	
+	static GPIO_PinState rotaryCH1State, rotaryCH1PrevState ;	
 	static GPIO_PinState rotaryCH2State, rotaryCH2PrevState ;
 	
 	// it's not clear how to get the default state
@@ -42,7 +41,7 @@ static void ScanKeyboard(void) {
 	rotaryBtnPrevState = rotaryBtnState;
 	rotaryBtnState = HAL_GPIO_ReadPin(KEYBOARD_ROTARY_BTN);
 	
-	//rotaryCH1PrevState = rotaryCH1State;
+	rotaryCH1PrevState = rotaryCH1State;
 	rotaryCH1State = HAL_GPIO_ReadPin(KEYBOARD_ROTATY_CH1);
 	
 	//rotaryCH2PrevState = rotaryCH2State;
@@ -62,32 +61,28 @@ static void ScanKeyboard(void) {
 		rotaryBtnTrigger = 1;
 	}
 	
+	///////////////////////////////
+	// Encoder channels pooling  //
+	///////////////////////////////
+	//      CW ->        <-CCW
+	//    ___     ___     ___     _
+	//___|   |___|   |___|   |___|    CH1 1
+	//      ___     ___     ___
+	// ____|   |___|   |___|   |___   CH2 2
+	// 
 	
-	if (rotaryCH1State != rotaryCH1PrevState) {
-	
-		if (rotaryCH1PrevState == GPIO_PIN_SET) {
-			rotaryCH1PrevState = GPIO_PIN_RESET;
+	// edge detection on CH1
+	if ( (rotaryCH1State != rotaryCH1PrevState) ) {	 
+		// direction detection on CH2
+		if ( rotaryCH1State != rotaryCH2State) {	 
+			if (rotaryPosition < ROTARY_POS_MAX) {rotaryPosition++;}
+			rotaryEvent = ROTARY_CW;			
 		} else {
-			rotaryCH1PrevState = GPIO_PIN_SET;
-		}
-		
-		if (rotaryCH1PrevState == rotaryCH2State) {			
-			rotaryPosition--;
+			if (rotaryPosition > ROTARY_POS_MIN) {rotaryPosition--;}
 			rotaryEvent = ROTARY_CCW;
-		} else {
-			rotaryPosition++;
-			rotaryEvent = ROTARY_CW;
 		}
-		//bKeyDetected = 1;
 	}
-	
-	if (rotaryPosition > ROTARY_POS_MAX) {
-		rotaryPosition = ROTARY_POS_MAX;
-	}
-	
-	if (rotaryPosition < ROTARY_POS_MIN) {
-		rotaryPosition = ROTARY_POS_MIN;
-	}
+
 	
 #ifdef DEBUG_ROTARY
 	debugRotaryPosition = rotaryPosition;
