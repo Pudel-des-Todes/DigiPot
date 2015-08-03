@@ -82,9 +82,9 @@ void LCDsendCommand(uint8_t);	//forms data ready to send to 74HC164
 void LCDinit(void);			//Initializes LCD
 
 void LCDstring(char*);	//Outputs string to LCD
-void LCDstringDefinedPos(char*, uint8_t, uint8_t);  // Cursor to X, Y and write string
+void LCDstringDefinedPos(char* string, uint8_t x, uint8_t y);  // Cursor to X, Y and write string
 void LCDbytes(char*, unsigned char);	//Outputs byte array to LCD
-void LCDGotoXY(unsigned char, unsigned char);	//Cursor to X Y position
+void LCDGotoXY(unsigned char x, unsigned char y);	//Cursor to X Y position
 
 
 

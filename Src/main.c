@@ -103,10 +103,24 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
   
+  
+  char debugString[16];
   const uint16_t loopDelayDefault = 100;
   uint16_t loopDelay ;
+  
+  uint8_t spiTXbuffer[2] = {0};
+  uint8_t spiRXbuffer[2] = {0};
+  
 
+/*  
+  HAL_OK       = 0x00,
+  HAL_ERROR    = 0x01,
+  HAL_BUSY     = 0x02,
+  HAL_TIMEOUT  = 0x03
+*/
+  HAL_StatusTypeDef spiSatus= HAL_BUSY;
 
   while (1)
   {
@@ -118,8 +132,50 @@ int main(void)
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
-			LCDstringDefinedPos("PUSH", (16-4)/2, 0); 
-			loopDelay = 1000;
+			
+				
+			spiRXbuffer[0] = 0x00;
+			spiRXbuffer[1] = 0x00;
+			
+			
+			spiTXbuffer[0] = 0x00;
+			spiTXbuffer[1] = 0x7F;
+
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+			spiSatus = HAL_SPI_Transmit(&hspi1,spiTXbuffer,2,100);	
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+			
+		HAL_Delay(100);
+		
+			spiTXbuffer[0] = 0x0;
+			spiTXbuffer[1] = 0x00;
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+		
+			switch (spiSatus) {
+				case HAL_OK:
+					LCDstringDefinedPos("HAL_OK",0,0);
+					break;
+				case HAL_ERROR:
+					LCDstringDefinedPos("HAL_ERROR",0,0);
+					break;
+				case HAL_BUSY:
+					LCDstringDefinedPos("HAL_BUSY",0,0);
+					break;
+				case HAL_TIMEOUT:
+					LCDstringDefinedPos("HAL_TIMEOUT",0,0);
+					break;
+				default:
+					LCDstringDefinedPos("- undefined- ",0,0);
+					break;
+			}
+			
+			if (spiSatus == HAL_OK) {
+				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
+				LCDstringDefinedPos(debugString,0,1);
+			}
+			loopDelay = 2000;
 			break;		
 		case ROTARY_CW: 
 			//LCDstringDefinedPos("Right", 16-5, 0); 
