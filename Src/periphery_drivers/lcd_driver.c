@@ -1,6 +1,6 @@
 
 #include "stm32f0xx_hal.h"
-#include "lcd_lib.h"
+#include "lcd_driver.h"
 
 static void LCD_Delay_ms(uint32_t delay_ms) {
 	

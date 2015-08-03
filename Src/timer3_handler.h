@@ -6,6 +6,7 @@
 typedef enum {
 	ROTARY_IDLE = 0,
 	ROTARY_PUSH,
+	ROTARY_RELEASE,
 	ROTARY_CW,
 	ROTARY_CCW,
 } RotaryEvent;
@@ -15,15 +16,8 @@ typedef enum {
 
 void timer3_interrup_handler(void);
 
-RotaryEvent getRotaryEvent(void);
-
-
-
-
-
-
-
-
+RotaryEvent RotaryGetEvent(void);
+int16_t RotaryGetPosition(void);
 
 
 

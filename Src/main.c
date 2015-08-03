@@ -34,8 +34,9 @@
 #include "stm32f0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include "..\MDK-ARM\lcd_lib.h"
-#include "..\MDK-ARM\timer3_handler.h"
+#include "timer3_handler.h"
+#include "periphery_drivers\lcd_driver.h"
+#include "periphery_drivers\MCP41HV51_driver.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -105,7 +106,6 @@ int main(void)
   
   const uint16_t loopDelayDefault = 100;
   uint16_t loopDelay ;
-  uint16_t aliveCounter = 10;
 
 
   while (1)
@@ -114,20 +114,20 @@ int main(void)
 	LCDclr();
    
 	
-	switch (getRotaryEvent()) {
+	switch (RotaryGetEvent()) {
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
 			LCDstringDefinedPos("PUSH", (16-4)/2, 0); 
-			loopDelay = 2000;
+			loopDelay = 1000;
 			break;		
 		case ROTARY_CW: 
-			LCDstringDefinedPos("=>", 14, 0); 
-			loopDelay = 100;
+			//LCDstringDefinedPos("Right", 16-5, 0); 
+			//loopDelay = 200;
 			break;
 		case ROTARY_CCW: 
-			LCDstringDefinedPos("<=", 0, 0); 
-			loopDelay = 100;
+			//LCDstringDefinedPos("Left", 0, 0); 
+			//loopDelay = 200;
 			break;
 		default:
 			break;
