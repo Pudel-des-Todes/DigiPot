@@ -123,24 +123,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
   
+<<<<<<< HEAD
   
   char debugString[16];
   const uint16_t loopDelayDefault = 200;
+=======
+  const uint16_t loopDelayDefault = 100;
+>>>>>>> parent of 40f1dd5... Small changes
   uint16_t loopDelay ;
-  
-  uint8_t spiTXbuffer[2] = {0};
-  uint8_t spiRXbuffer[2] = {0};
-  
 
-/*  
-  HAL_OK       = 0x00,
-  HAL_ERROR    = 0x01,
-  HAL_BUSY     = 0x02,
-  HAL_TIMEOUT  = 0x03
-*/
-  HAL_StatusTypeDef spiSatus= HAL_BUSY;
 
   while (1)
   {
@@ -152,6 +144,7 @@ int main(void)
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
+<<<<<<< HEAD
 			
 				
 			spiRXbuffer[0] = 0x00;
@@ -182,6 +175,10 @@ int main(void)
 				LCDstringDefinedPos(debugString,0,1);
 			}
 			loopDelay = 2000;
+=======
+			LCDstringDefinedPos("PUSH", (16-4)/2, 0); 
+			loopDelay = 1000;
+>>>>>>> parent of 40f1dd5... Small changes
 			break;		
 		case ROTARY_CW: 
 			//LCDstringDefinedPos(">>",0,0);

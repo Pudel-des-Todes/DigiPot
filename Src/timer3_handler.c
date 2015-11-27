@@ -93,7 +93,7 @@ static void ScanKeyboard(void) {
 }
 
 
-RotaryEvent RotaryGetEvent(void) {
+RotaryEvent getRotaryEvent(void) {
 	RotaryEvent rotaryEventCopy = rotaryEvent;
 	rotaryEvent = ROTARY_IDLE;
 	return rotaryEventCopy;	
