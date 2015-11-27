@@ -37,6 +37,7 @@
 #include "timer3_handler.h"
 #include "periphery_drivers\lcd_driver.h"
 #include "periphery_drivers\MCP41HV51_driver.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -74,23 +75,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 
 void print_HAL_status(HAL_StatusTypeDef spiSatus) {
-			switch (spiSatus) {
-				case HAL_OK:
-					LCDstringDefinedPos("HAL_OK",0,0);
-					break;
-				case HAL_ERROR:
-					LCDstringDefinedPos("HAL_ERROR",0,0);
-					break;
-				case HAL_BUSY:
-					LCDstringDefinedPos("HAL_BUSY",0,0);
-					break;
-				case HAL_TIMEOUT:
-					LCDstringDefinedPos("HAL_TIMEOUT",0,0);
-					break;
-				default:
-					LCDstringDefinedPos("- undefined- ",0,0);
-					break;
-			}
+	switch (spiSatus) {
+		case HAL_OK:
+			LCDstringDefinedPos("HAL_OK",0,0);
+			break;
+		case HAL_ERROR:
+			LCDstringDefinedPos("HAL_ERROR",0,0);
+			break;
+		case HAL_BUSY:
+			LCDstringDefinedPos("HAL_BUSY",0,0);
+			break;
+		case HAL_TIMEOUT:
+			LCDstringDefinedPos("HAL_TIMEOUT",0,0);
+			break;
+		default:
+			LCDstringDefinedPos("- undefined- ",0,0);
+			break;
+	}
 }
 /* USER CODE END 0 */
 
@@ -124,15 +125,20 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-
-  uint8_t spiTXbuffer[2];
-  uint8_t spiRXbuffer[2];
+	uint8_t uartTxBuffer[100];
+	uint8_t uartRxBuffer[100];
   
-  HAL_StatusTypeDef spiSatus;
   char debugString[16];
   const uint16_t loopDelayDefault = 200;
   uint16_t loopDelay ;
+  
+  uint8_t temp =0;
 
+
+	MCP41HV51_status_t digipot_status;
+
+
+	mcp41hv51_init (&hspi1);
 
   while (1)
   {
@@ -144,69 +150,51 @@ int main(void)
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
-				
-			spiRXbuffer[0] = 0x00;
-			spiRXbuffer[1] = 0x00;
-			
-			
-			//spiTXbuffer[0] = 0b0C;
-			//spiTXbuffer[1] = 0xAB;
-
-			//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			//spiSatus = HAL_SPI_Transmit(&hspi1,spiTXbuffer,2,100);	
-			//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
-			
-			HAL_Delay(100);
+			sprintf((char*)uartTxBuffer,"%s","Enter new value\r\n");
+			HAL_UART_Transmit(&huart2,uartTxBuffer,strlen((char*)uartTxBuffer),100);
+			//HAL_UART_Receive_IT
 		
-			spiTXbuffer[0] = 0x0C;
-			spiTXbuffer[1] = 0xFF;
+			LCDstringDefinedPos((char*)uartRxBuffer,0,0);
+			/*	
+			digipot_status = Pot_wiper_read(POT100k,&temp );			
+			if (digipot_status == CMD_OK) {
+				sprintf(debugString,"%02X ",temp);
+				LCDstringDefinedPos("OK",0,0);
+				LCDstringDefinedPos(debugString,0,1);	
+				loopDelay = 2000;
+			} else {				
+				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
+				LCDstringDefinedPos("ERR",0,0);
+				LCDstringDefinedPos(debugString,0,1);	
+				loopDelay = 2000;
+			} */
 		
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
-			//spiSatus = HAL_SPI_Transmit(&hspi1, spiTXbuffer,1 ,100);	
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
-		
-			print_HAL_status(spiSatus);
-			
-			if (spiSatus == HAL_OK) {
-				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
-				LCDstringDefinedPos(debugString,0,1);
-			}
-			loopDelay = 2000;
-
-
 			break;		
 		case ROTARY_CW: 
-			//LCDstringDefinedPos(">>",0,0);
-			spiTXbuffer[0] = 0x04;
-			spiTXbuffer[1] = 0xFF;
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
-			if ( !(spiRXbuffer[0] & 0x02)) {
+		
+			//digipot_status = Pot_wiper_write(POT100k,0xDF);	
+			digipot_status = Pot_wiper_increment(POT100k);			
+			if (digipot_status == CMD_OK) {
+				loopDelay = 10;
+			} else {				
+				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
 				LCDstringDefinedPos("ERR",0,0);
-				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
-				LCDstringDefinedPos(debugString,0,1);
-				loopDelay = 100;
-			} else {
-					loopDelay = 10;
+				LCDstringDefinedPos(debugString,0,1);	
+				loopDelay = 2000;
 			}
 			
 			break;
 		case ROTARY_CCW: 
-			//LCDstringDefinedPos("<<",0,0);
-			spiTXbuffer[0] = 0x08;
-			spiTXbuffer[1] = 0xFF;
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			spiSatus = HAL_SPI_TransmitReceive(&hspi1, spiTXbuffer,spiRXbuffer,2 ,100);	
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);	
-			if ( !(spiRXbuffer[0] & 0x02)) {
+			
+			//digipot_status = Pot_wiper_write(POT100k,0x20);	
+			digipot_status = Pot_wiper_increment(POT100k);			
+			if (digipot_status == CMD_OK) {
+				loopDelay = 10;
+			} else {				
+				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
 				LCDstringDefinedPos("ERR",0,0);
-				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
-				LCDstringDefinedPos(debugString,0,1);
-				loopDelay = 100;
-			} else {
-					loopDelay = 10;
+				LCDstringDefinedPos(debugString,0,1);	
+				loopDelay = 2000;
 			}
 			break;
 		default:
