@@ -40,7 +40,7 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef *hspi1;
+SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim3;
 
@@ -124,13 +124,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-<<<<<<< HEAD
+
+  uint8_t spiTXbuffer[2];
+  uint8_t spiRXbuffer[2];
   
+  HAL_StatusTypeDef spiSatus;
   char debugString[16];
   const uint16_t loopDelayDefault = 200;
-=======
-  const uint16_t loopDelayDefault = 100;
->>>>>>> parent of 40f1dd5... Small changes
   uint16_t loopDelay ;
 
 
@@ -144,8 +144,6 @@ int main(void)
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
-<<<<<<< HEAD
-			
 				
 			spiRXbuffer[0] = 0x00;
 			spiRXbuffer[1] = 0x00;
@@ -158,9 +156,9 @@ int main(void)
 			//spiSatus = HAL_SPI_Transmit(&hspi1,spiTXbuffer,2,100);	
 			//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
 			
-		HAL_Delay(100);
+			HAL_Delay(100);
 		
-			spiTXbuffer[0] = 0x1C;
+			spiTXbuffer[0] = 0x0C;
 			spiTXbuffer[1] = 0xFF;
 		
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
@@ -175,21 +173,21 @@ int main(void)
 				LCDstringDefinedPos(debugString,0,1);
 			}
 			loopDelay = 2000;
-=======
-			LCDstringDefinedPos("PUSH", (16-4)/2, 0); 
-			loopDelay = 1000;
->>>>>>> parent of 40f1dd5... Small changes
+
+
 			break;		
 		case ROTARY_CW: 
 			//LCDstringDefinedPos(">>",0,0);
-			spiTXbuffer[0] = 0x14;
+			spiTXbuffer[0] = 0x04;
 			spiTXbuffer[1] = 0xFF;
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
 			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
 			if ( !(spiRXbuffer[0] & 0x02)) {
 				LCDstringDefinedPos("ERR",0,0);
-				loopDelay = 2000;
+				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
+				LCDstringDefinedPos(debugString,0,1);
+				loopDelay = 100;
 			} else {
 					loopDelay = 10;
 			}
@@ -200,9 +198,16 @@ int main(void)
 			spiTXbuffer[0] = 0x08;
 			spiTXbuffer[1] = 0xFF;
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			spiSatus = HAL_SPI_Transmit(&hspi1, spiTXbuffer,1 ,100);	
+			spiSatus = HAL_SPI_TransmitReceive(&hspi1, spiTXbuffer,spiRXbuffer,2 ,100);	
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);	
-			loopDelay = 10;
+			if ( !(spiRXbuffer[0] & 0x02)) {
+				LCDstringDefinedPos("ERR",0,0);
+				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
+				LCDstringDefinedPos(debugString,0,1);
+				loopDelay = 100;
+			} else {
+					loopDelay = 10;
+			}
 			break;
 		default:
 			break;
