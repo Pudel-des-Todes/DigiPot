@@ -1,8 +1,10 @@
 
-#include "stm32f0xx_hal.h"
+
 
 #ifndef GLOBAL_DEBUG
 #define GOLBAL_DEBUG
+
+#include "stm32f0xx_hal.h"
 
 #define DEBUG_ENABLED
 //#define DEBUG_ROTARY

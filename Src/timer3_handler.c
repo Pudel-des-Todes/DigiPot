@@ -14,8 +14,7 @@ static void ScanKeyboard(void);
 static volatile RotaryEvent rotaryEvent = ROTARY_IDLE;
 static volatile int16_t rotaryPosition = (ROTARY_POS_MAX- ROTARY_POS_MIN)/2;
 
-void timer3_interrup_handler(void){
-	
+void timer3_interrup_handler(void){	
 	ScanKeyboard();
 }
 
@@ -58,8 +57,11 @@ static void ScanKeyboard(void) {
 				rotaryEvent = ROTARY_PUSH;
 		}		
 	} else {
-		rotaryBtnTrigger = 1;
-		rotaryEvent = ROTARY_RELEASE;
+		if (rotaryBtnTrigger == 0) {
+			rotaryBtnTrigger = 1;
+			rotaryEvent = ROTARY_RELEASE;
+		}
+		
 	}
 	
 	///////////////////////////////
@@ -94,9 +96,9 @@ static void ScanKeyboard(void) {
 RotaryEvent RotaryGetEvent(void) {
 	RotaryEvent rotaryEventCopy = rotaryEvent;
 	rotaryEvent = ROTARY_IDLE;
-	return rotaryEventCopy;
-	
+	return rotaryEventCopy;	
 }
+
 
 int16_t RotaryGetPosition(void) {
 	return rotaryPosition;

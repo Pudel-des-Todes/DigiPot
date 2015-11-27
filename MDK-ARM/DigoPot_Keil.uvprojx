@@ -430,12 +430,22 @@
             <File>
               <FileName>globalDebug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\globalDebug.c</FilePath>
+              <FilePath>..\Src\globalDebug.c</FilePath>
             </File>
             <File>
               <FileName>globalDebug.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\globalDebug.h</FilePath>
+              <FilePath>..\Src\globalDebug.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer3_handler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\timer3_handler.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer3_handler.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\timer3_handler.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -545,32 +555,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/User/TIM3</GroupName>
+          <GroupName>periphery_drivers</GroupName>
           <Files>
             <File>
-              <FileName>timer3_handler.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\timer3_handler.h</FilePath>
-            </File>
-            <File>
-              <FileName>timer3_handler.c</FileName>
+              <FileName>lcd_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\timer3_handler.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Application/User/LCD</GroupName>
-          <Files>
-            <File>
-              <FileName>lcd_lib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lcd_lib.c</FilePath>
+              <FilePath>..\Src\periphery_drivers\lcd_driver.c</FilePath>
             </File>
             <File>
-              <FileName>lcd_lib.h</FileName>
+              <FileName>lcd_driver.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\lcd_lib.h</FilePath>
+              <FilePath>..\Src\periphery_drivers\lcd_driver.h</FilePath>
+            </File>
+            <File>
+              <FileName>MCP41HV51_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\periphery_drivers\MCP41HV51_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>MCP41HV51_driver.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\periphery_drivers\MCP41HV51_driver.h</FilePath>
             </File>
           </Files>
         </Group>

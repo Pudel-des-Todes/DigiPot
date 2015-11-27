@@ -40,7 +40,7 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef *hspi1;
 
 TIM_HandleTypeDef htim3;
 
@@ -72,6 +72,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
+
+void print_HAL_status(HAL_StatusTypeDef spiSatus) {
+			switch (spiSatus) {
+				case HAL_OK:
+					LCDstringDefinedPos("HAL_OK",0,0);
+					break;
+				case HAL_ERROR:
+					LCDstringDefinedPos("HAL_ERROR",0,0);
+					break;
+				case HAL_BUSY:
+					LCDstringDefinedPos("HAL_BUSY",0,0);
+					break;
+				case HAL_TIMEOUT:
+					LCDstringDefinedPos("HAL_TIMEOUT",0,0);
+					break;
+				default:
+					LCDstringDefinedPos("- undefined- ",0,0);
+					break;
+			}
+}
 /* USER CODE END 0 */
 
 int main(void)
@@ -107,7 +127,7 @@ int main(void)
   
   
   char debugString[16];
-  const uint16_t loopDelayDefault = 100;
+  const uint16_t loopDelayDefault = 200;
   uint16_t loopDelay ;
   
   uint8_t spiTXbuffer[2] = {0};
@@ -138,38 +158,24 @@ int main(void)
 			spiRXbuffer[1] = 0x00;
 			
 			
-			spiTXbuffer[0] = 0x00;
-			spiTXbuffer[1] = 0x7F;
+			//spiTXbuffer[0] = 0b0C;
+			//spiTXbuffer[1] = 0xAB;
 
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
-			spiSatus = HAL_SPI_Transmit(&hspi1,spiTXbuffer,2,100);	
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+			//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+			//spiSatus = HAL_SPI_Transmit(&hspi1,spiTXbuffer,2,100);	
+			//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
 			
 		HAL_Delay(100);
 		
-			spiTXbuffer[0] = 0x0;
-			spiTXbuffer[1] = 0x00;
+			spiTXbuffer[0] = 0x1C;
+			spiTXbuffer[1] = 0xFF;
+		
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
 			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
+			//spiSatus = HAL_SPI_Transmit(&hspi1, spiTXbuffer,1 ,100);	
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
 		
-			switch (spiSatus) {
-				case HAL_OK:
-					LCDstringDefinedPos("HAL_OK",0,0);
-					break;
-				case HAL_ERROR:
-					LCDstringDefinedPos("HAL_ERROR",0,0);
-					break;
-				case HAL_BUSY:
-					LCDstringDefinedPos("HAL_BUSY",0,0);
-					break;
-				case HAL_TIMEOUT:
-					LCDstringDefinedPos("HAL_TIMEOUT",0,0);
-					break;
-				default:
-					LCDstringDefinedPos("- undefined- ",0,0);
-					break;
-			}
+			print_HAL_status(spiSatus);
 			
 			if (spiSatus == HAL_OK) {
 				sprintf(debugString,"%02X %02X",spiRXbuffer[0],spiRXbuffer[1]);
@@ -178,12 +184,28 @@ int main(void)
 			loopDelay = 2000;
 			break;		
 		case ROTARY_CW: 
-			//LCDstringDefinedPos("Right", 16-5, 0); 
-			//loopDelay = 200;
+			//LCDstringDefinedPos(">>",0,0);
+			spiTXbuffer[0] = 0x14;
+			spiTXbuffer[1] = 0xFF;
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+			spiSatus = HAL_SPI_TransmitReceive(&hspi1,spiTXbuffer,spiRXbuffer,2,100);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+			if ( !(spiRXbuffer[0] & 0x02)) {
+				LCDstringDefinedPos("ERR",0,0);
+				loopDelay = 2000;
+			} else {
+					loopDelay = 10;
+			}
+			
 			break;
 		case ROTARY_CCW: 
-			//LCDstringDefinedPos("Left", 0, 0); 
-			//loopDelay = 200;
+			//LCDstringDefinedPos("<<",0,0);
+			spiTXbuffer[0] = 0x08;
+			spiTXbuffer[1] = 0xFF;
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+			spiSatus = HAL_SPI_Transmit(&hspi1, spiTXbuffer,1 ,100);	
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);	
+			loopDelay = 10;
 			break;
 		default:
 			break;
@@ -237,11 +259,13 @@ void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  //hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  //hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLED;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
