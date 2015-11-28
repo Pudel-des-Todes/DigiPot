@@ -46,11 +46,22 @@ SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
+
+
+#define UART_PRIORITY         6
+#define UART_RX_SUBPRIORITY   0
+#define MAXCLISTRING          100 // Biggest string the user will type
+
+volatile uint8_t rxBuffer = '\000'; // where we store that one character that just came in
+volatile uint8_t rxString[MAXCLISTRING]; // where we build our string from characters coming in
+volatile int rxindex = 0; // index for going though rxString
+volatile int print_custom_msg = 0;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-	uint8_t uartTxBuffer[100];
-	uint8_t uartRxBuffer[100];
+volatile	uint8_t uartTxBuffer[100];
+volatile	uint8_t uartRxBuffer[100];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +69,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_SPI1_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -67,24 +80,56 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN 0 */
 
+
+extern DMA_HandleTypeDef hdma_usartw_rx;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM3) {			
 		timer3_interrup_handler();
+		
 	}
 }
 
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	//print_custom_msg =1;
 	
-	uint8_t dbg[100];
-	if (huart->Instance == USART2) {
-		
-		
-		sprintf(dbg, "%s - %d\r\n" , huart->pRxBuffPtr, huart->RxXferCount);
-		HAL_UART_Transmit_IT(&huart2, (uint8_t*)dbg, strlen(dbg));
-	}
-	HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
+    __HAL_UART_FLUSH_DRREGISTER(&huart2); // Clear the buffer to prevent overrun
+
+    int i = 0;
+
+   // print(&rxBuffer); // Echo the character that caused this callback so the user can see what they are typing
+
+    if (rxBuffer == 8 || rxBuffer == 127) // If Backspace or del
+    {
+       // print(" \b"); // "\b space \b" clears the terminal character. Remember we just echoced a \b so don't need another one here, just space and \b
+        rxindex--; 
+        if (rxindex < 0) rxindex = 0;
+    }
+
+    else if (rxBuffer == '\n' || rxBuffer == '\r') // If Enter
+    {
+		//print_custom_msg =1;
+        LCDstringDefinedPos(rxString,0,0);
+        rxString[rxindex] = 0;
+        rxindex = 0;
+        for (i = 0; i < MAXCLISTRING; i++) rxString[i] = 0; // Clear the string buffer
+    }
+
+    else
+    {
+        rxString[rxindex] = rxBuffer; // Add that character to the string
+        rxindex++;
+        if (rxindex > MAXCLISTRING) // User typing too much, we can't have commands that big
+        {
+            rxindex = 0;
+            for (i = 0; i < MAXCLISTRING; i++) rxString[i] = 0; // Clear the string buffer
+            //print("\r\nConsole> ");
+        }
+    }
+	
 }
 
 
@@ -128,12 +173,17 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_TIM3_Init();
+	MX_DMA_Init();
   MX_USART2_UART_Init();
-  HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
+  
+  //HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
 
   /* USER CODE BEGIN 2 */
 	LCDinit();
-	HAL_TIM_Base_Start_IT(&htim3);
+	//HAL_TIM_Base_Start_IT(&htim3);
+	
+	__HAL_UART_FLUSH_DRREGISTER(&huart2);
+	HAL_UART_Receive_DMA(&huart2, &rxBuffer, 1);
 
 	//LCDstring("potatos");
   /* USER CODE END 2 */
@@ -154,19 +204,36 @@ int main(void)
 
 
 	mcp41hv51_init (&hspi1);
-
+	
+	
+	LCDstringDefinedPos("Hello",0,0);
+	LCDstringDefinedPos("World",5,1);
+	HAL_Delay(2000);
+	
   while (1)
   {
 	loopDelay = loopDelayDefault;
-	LCDclr();
-   
+	//LCDclr();
+	  
+	sprintf(debugString,"%02X ",rxBuffer);
+	LCDstringDefinedPos(debugString,0,0);  
+	  
+	if (print_custom_msg) {
+		LCDclr();
+		LCDstringDefinedPos(rxString,0,0);
+		loopDelay = 2000;
+		print_custom_msg =0;
+	}		
+	
 	
 	switch (RotaryGetEvent()) {
 		case ROTARY_IDLE: 
 			break;
 		case ROTARY_PUSH: 
-			sprintf((char*)uartTxBuffer,"%s","Enter new value\r\n");
-			HAL_UART_Transmit(&huart2,uartTxBuffer,strlen((char*)uartTxBuffer),100);
+			
+			LCDclr();
+			//sprintf((char*)uartTxBuffer,"%s","Enter new value\r\n");
+			//HAL_UART_Transmit(&huart2,uartTxBuffer,strlen((char*)uartTxBuffer),100);
 			
 		
 			//LCDstringDefinedPos((char*)uartRxBuffer,0,0);
@@ -186,7 +253,7 @@ int main(void)
 		
 			break;		
 		case ROTARY_CW: 
-		
+			LCDclr();
 			//digipot_status = Pot_wiper_write(POT100k,0xDF);	
 			digipot_status = Pot_wiper_increment(POT100k);			
 			if (digipot_status == CMD_OK) {
@@ -200,7 +267,7 @@ int main(void)
 			
 			break;
 		case ROTARY_CCW: 
-			
+			LCDclr();
 			//digipot_status = Pot_wiper_write(POT100k,0x20);	
 			digipot_status = Pot_wiper_increment(POT100k);			
 			if (digipot_status == CMD_OK) {
@@ -319,6 +386,21 @@ void MX_USART2_UART_Init(void)
   HAL_UART_Init(&huart2);
 
 }
+
+/** 
+  * Enable DMA controller clock
+  */
+void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  HAL_NVIC_SetPriority(DMA1_Ch1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Ch1_IRQn);
+
+}
+
 
 /** Configure pins as 
         * Analog 

@@ -16,6 +16,7 @@ static volatile int16_t rotaryPosition = (ROTARY_POS_MAX- ROTARY_POS_MIN)/2;
 
 void timer3_interrup_handler(void){	
 	ScanKeyboard();
+	
 }
 
 
