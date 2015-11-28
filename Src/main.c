@@ -49,7 +49,8 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+	uint8_t uartTxBuffer[100];
+	uint8_t uartRxBuffer[100];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,6 +72,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM3) {			
 		timer3_interrup_handler();
 	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	
+	uint8_t dbg[100];
+	if (huart->Instance == USART2) {
+		
+		
+		sprintf(dbg, "%s - %d\r\n" , huart->pRxBuffPtr, huart->RxXferCount);
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)dbg, strlen(dbg));
+	}
+	HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
 }
 
 
@@ -115,18 +129,19 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
+  HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
 
   /* USER CODE BEGIN 2 */
 	LCDinit();
 	HAL_TIM_Base_Start_IT(&htim3);
+
 	//LCDstring("potatos");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-	uint8_t uartTxBuffer[100];
-	uint8_t uartRxBuffer[100];
+
   
   char debugString[16];
   const uint16_t loopDelayDefault = 200;
@@ -152,10 +167,10 @@ int main(void)
 		case ROTARY_PUSH: 
 			sprintf((char*)uartTxBuffer,"%s","Enter new value\r\n");
 			HAL_UART_Transmit(&huart2,uartTxBuffer,strlen((char*)uartTxBuffer),100);
-			//HAL_UART_Receive_IT
+			
 		
-			LCDstringDefinedPos((char*)uartRxBuffer,0,0);
-			/*	
+			//LCDstringDefinedPos((char*)uartRxBuffer,0,0);
+			
 			digipot_status = Pot_wiper_read(POT100k,&temp );			
 			if (digipot_status == CMD_OK) {
 				sprintf(debugString,"%02X ",temp);
@@ -167,7 +182,7 @@ int main(void)
 				LCDstringDefinedPos("ERR",0,0);
 				LCDstringDefinedPos(debugString,0,1);	
 				loopDelay = 2000;
-			} */
+			} 
 		
 			break;		
 		case ROTARY_CW: 
@@ -249,12 +264,10 @@ void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  //hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  //hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLED;
