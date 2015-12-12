@@ -1,6 +1,7 @@
 #include "stm32f0xx_hal.h"
 #include "timer3_handler.h"
 #include "globalDebug.h"
+#include "parser2.h"
 
 #define KEYBOARD_ROTARY_BTN GPIOA,GPIO_PIN_9
 #define KEYBOARD_ROTATY_CH1 GPIOB,GPIO_PIN_6
@@ -14,9 +15,18 @@ static void ScanKeyboard(void);
 static volatile RotaryEvent rotaryEvent = ROTARY_IDLE;
 static volatile int16_t rotaryPosition = (ROTARY_POS_MAX- ROTARY_POS_MIN)/2;
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+
+	if (htim->Instance == TIM3) {			
+		timer3_interrup_handler();
+		
+	}
+}
+
+
 void timer3_interrup_handler(void){	
 	ScanKeyboard();
-	
+	UART2_parser();
 }
 
 
@@ -24,21 +34,27 @@ void timer3_interrup_handler(void){
 static void ScanKeyboard(void) {
 	static uint8_t init_needed = 1;
 	static uint8_t rotaryBtnTrigger = 1;
-	static GPIO_PinState rotaryBtnState, rotaryBtnPrevState;
+	static GPIO_PinState rotaryBtnState; 
+//	static GPIO_PinState rotaryBtnPrevState;
 	
-	static GPIO_PinState rotaryCH1State, rotaryCH1PrevState ;	
-	static GPIO_PinState rotaryCH2State, rotaryCH2PrevState ;
+	static GPIO_PinState rotaryCH1State;
+	static GPIO_PinState rotaryCH1PrevState ;	
+	static GPIO_PinState rotaryCH2State;
+//	static GPIO_PinState rotaryCH2PrevState ;
 	
 	// it's not clear how to get the default state
 	if (init_needed == 1) {
-		rotaryBtnState = rotaryBtnPrevState = HAL_GPIO_ReadPin(KEYBOARD_ROTARY_BTN);
-		rotaryCH1State = rotaryCH1PrevState = HAL_GPIO_ReadPin(KEYBOARD_ROTATY_CH1);
-		rotaryCH2State = rotaryCH2PrevState = HAL_GPIO_ReadPin(KEYBOARD_ROTATY_CH2);
+		rotaryBtnState = HAL_GPIO_ReadPin(KEYBOARD_ROTARY_BTN);
+//		rotaryBtnPrevState = rotaryBtnState;
+		rotaryCH1State = HAL_GPIO_ReadPin(KEYBOARD_ROTATY_CH1);
+		rotaryCH1PrevState = rotaryCH1State;
+		rotaryCH2State = HAL_GPIO_ReadPin(KEYBOARD_ROTATY_CH2);
+//		rotaryCH2PrevState = rotaryCH2State;
 		init_needed = 0;
 		return;
 	}
 	
-	rotaryBtnPrevState = rotaryBtnState;
+//	rotaryBtnPrevState = rotaryBtnState;
 	rotaryBtnState = HAL_GPIO_ReadPin(KEYBOARD_ROTARY_BTN);
 	
 	rotaryCH1PrevState = rotaryCH1State;

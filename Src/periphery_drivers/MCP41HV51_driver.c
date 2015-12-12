@@ -33,8 +33,8 @@ MCP41HV51_status_t  Pot_tcon_read (uint8_t device_nr, uint8_t *dataOut) {
 	return mcp41hv51_cmd_16bit (device_nr,MCP41HV51_TCON_read, 0xFF,  dataOut);
 }
 
-MCP41HV51_status_t  Pot_tcon_write (uint8_t device_nr, uint8_t *dataIn) {
-	return mcp41hv51_cmd_16bit (device_nr,MCP41HV51_TCON_write, 0xFF , dataIn );
+MCP41HV51_status_t  Pot_tcon_write (uint8_t device_nr, uint8_t dataIn) {
+	return mcp41hv51_cmd_16bit (device_nr,MCP41HV51_TCON_write, dataIn , NULL );
 }
 	
 

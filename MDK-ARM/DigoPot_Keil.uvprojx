@@ -369,7 +369,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F091xC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;   ..\Drivers\STM32F0xx_HAL_Driver\Inc;   ..\Drivers\STM32F0xx_HAL_Driver\Inc\Legacy;   ..\Drivers\CMSIS\Include;   ..\Drivers\CMSIS\Device\ST\STM32F0xx\Include</IncludePath>
+              <IncludePath>..\Inc;     ..\Drivers\STM32F0xx_HAL_Driver\Inc;     ..\Drivers\STM32F0xx_HAL_Driver\Inc\Legacy;     ..\Drivers\CMSIS\Include;     ..\Drivers\CMSIS\Device\ST\STM32F0xx\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -433,19 +433,59 @@
               <FilePath>..\Src\globalDebug.c</FilePath>
             </File>
             <File>
-              <FileName>globalDebug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Src\globalDebug.h</FilePath>
-            </File>
-            <File>
               <FileName>timer3_handler.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\timer3_handler.c</FilePath>
             </File>
             <File>
+              <FileName>globalDebug.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\globalDebug.h</FilePath>
+            </File>
+            <File>
               <FileName>timer3_handler.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Src\timer3_handler.h</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\uart.h</FilePath>
+            </File>
+            <File>
+              <FileName>parser2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\parser2.c</FilePath>
+            </File>
+            <File>
+              <FileName>parser2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\parser2.h</FilePath>
+            </File>
+            <File>
+              <FileName>data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\data.c</FilePath>
+            </File>
+            <File>
+              <FileName>data.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\data.h</FilePath>
+            </File>
+            <File>
+              <FileName>utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>utils.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\utils.h</FilePath>
             </File>
           </Files>
         </Group>

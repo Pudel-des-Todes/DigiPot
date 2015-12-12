@@ -36,6 +36,8 @@
 
 extern DMA_HandleTypeDef hdma_usart2_rx;
 
+extern DMA_HandleTypeDef hdma_usart2_tx;
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -198,18 +200,30 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
-    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
     HAL_DMA_Init(&hdma_usart2_rx);
 
-  //  __HAL_DMA1_REMAP(HAL_DMA1_CH1_USART2_RX);
+    __HAL_DMA1_REMAP(HAL_DMA1_CH1_USART2_RX);
 
     __HAL_LINKDMA(huart,hdmarx,hdma_usart2_rx);
 
+    hdma_usart2_tx.Instance = DMA1_Channel2;
+    hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart2_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_tx.Init.Mode = DMA_NORMAL;
+    hdma_usart2_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    HAL_DMA_Init(&hdma_usart2_tx);
+
+    __HAL_DMA1_REMAP(HAL_DMA1_CH2_USART2_TX);
+
+    __HAL_LINKDMA(huart,hdmatx,hdma_usart2_tx);
+
   /* Peripheral interrupt init*/
-    HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
-	
-	 HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-   // HAL_NVIC_EnableIRQ(USART2_IRQn);
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
@@ -236,6 +250,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
     /* Peripheral DMA DeInit*/
     HAL_DMA_DeInit(huart->hdmarx);
+    HAL_DMA_DeInit(huart->hdmatx);
 
     /* Peripheral interrupt DeInit*/
     HAL_NVIC_DisableIRQ(USART2_IRQn);

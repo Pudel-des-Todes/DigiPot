@@ -59,7 +59,7 @@ MCP41HV51_status_t Pot_wiper_read(uint8_t , uint8_t *);
 MCP41HV51_status_t Pot_wiper_write(uint8_t , uint8_t );
 
 MCP41HV51_status_t Pot_tcon_read (uint8_t device_nr, uint8_t *dataOut);
-MCP41HV51_status_t Pot_tcon_write (uint8_t device_nr, uint8_t *dataIn);
+MCP41HV51_status_t Pot_tcon_write (uint8_t device_nr, uint8_t dataIn);
 
 uint8_t mcp41hv51_init(SPI_HandleTypeDef *spi_handle);
 uint8_t mcp41hv51_read_wiper(void);

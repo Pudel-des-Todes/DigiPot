@@ -35,6 +35,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "timer3_handler.h"
+#include "uart.h"
 #include "periphery_drivers\lcd_driver.h"
 #include "periphery_drivers\MCP41HV51_driver.h"
 #include "string.h"
@@ -47,30 +48,19 @@ TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_rx;
-
-
-#define UART_PRIORITY         6
-#define UART_RX_SUBPRIORITY   0
-#define MAXCLISTRING          100 // Biggest string the user will type
-
-volatile uint8_t rxBuffer = '\000'; // where we store that one character that just came in
-volatile uint8_t rxString[MAXCLISTRING]; // where we build our string from characters coming in
-volatile int rxindex = 0; // index for going though rxString
-volatile int print_custom_msg = 0;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile	uint8_t uartTxBuffer[100];
-volatile	uint8_t uartRxBuffer[100];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
-static void MX_SPI1_Init(void);
-static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -83,75 +73,10 @@ static void MX_USART2_UART_Init(void);
 
 extern DMA_HandleTypeDef hdma_usartw_rx;
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-	if (htim->Instance == TIM3) {			
-		timer3_interrup_handler();
-		
-	}
-}
 
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	//print_custom_msg =1;
-	
-    __HAL_UART_FLUSH_DRREGISTER(&huart2); // Clear the buffer to prevent overrun
-
-    int i = 0;
-
-   // print(&rxBuffer); // Echo the character that caused this callback so the user can see what they are typing
-
-    if (rxBuffer == 8 || rxBuffer == 127) // If Backspace or del
-    {
-       // print(" \b"); // "\b space \b" clears the terminal character. Remember we just echoced a \b so don't need another one here, just space and \b
-        rxindex--; 
-        if (rxindex < 0) rxindex = 0;
-    }
-
-    else if (rxBuffer == '\n' || rxBuffer == '\r') // If Enter
-    {
-		//print_custom_msg =1;
-        LCDstringDefinedPos(rxString,0,0);
-        rxString[rxindex] = 0;
-        rxindex = 0;
-        for (i = 0; i < MAXCLISTRING; i++) rxString[i] = 0; // Clear the string buffer
-    }
-
-    else
-    {
-        rxString[rxindex] = rxBuffer; // Add that character to the string
-        rxindex++;
-        if (rxindex > MAXCLISTRING) // User typing too much, we can't have commands that big
-        {
-            rxindex = 0;
-            for (i = 0; i < MAXCLISTRING; i++) rxString[i] = 0; // Clear the string buffer
-            //print("\r\nConsole> ");
-        }
-    }
-	
-}
 
 
-void print_HAL_status(HAL_StatusTypeDef spiSatus) {
-	switch (spiSatus) {
-		case HAL_OK:
-			LCDstringDefinedPos("HAL_OK",0,0);
-			break;
-		case HAL_ERROR:
-			LCDstringDefinedPos("HAL_ERROR",0,0);
-			break;
-		case HAL_BUSY:
-			LCDstringDefinedPos("HAL_BUSY",0,0);
-			break;
-		case HAL_TIMEOUT:
-			LCDstringDefinedPos("HAL_TIMEOUT",0,0);
-			break;
-		default:
-			LCDstringDefinedPos("- undefined- ",0,0);
-			break;
-	}
-}
 /* USER CODE END 0 */
 
 int main(void)
@@ -171,19 +96,16 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_TIM3_Init();
-	MX_DMA_Init();
   MX_USART2_UART_Init();
-  
-  //HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
 
   /* USER CODE BEGIN 2 */
 	LCDinit();
-	//HAL_TIM_Base_Start_IT(&htim3);
+	uart2_start(&huart2);
+	HAL_TIM_Base_Start_IT(&htim3);	
 	
-	__HAL_UART_FLUSH_DRREGISTER(&huart2);
-	HAL_UART_Receive_DMA(&huart2, &rxBuffer, 1);
 
 	//LCDstring("potatos");
   /* USER CODE END 2 */
@@ -194,7 +116,7 @@ int main(void)
 
   
   char debugString[16];
-  const uint16_t loopDelayDefault = 200;
+  const uint16_t loopDelayDefault = 10;
   uint16_t loopDelay ;
   
   uint8_t temp =0;
@@ -215,15 +137,9 @@ int main(void)
 	loopDelay = loopDelayDefault;
 	//LCDclr();
 	  
-	sprintf(debugString,"%02X ",rxBuffer);
-	LCDstringDefinedPos(debugString,0,0);  
-	  
-	if (print_custom_msg) {
-		LCDclr();
-		LCDstringDefinedPos(rxString,0,0);
-		loopDelay = 2000;
-		print_custom_msg =0;
-	}		
+	
+	
+
 	
 	
 	switch (RotaryGetEvent()) {
@@ -243,12 +159,10 @@ int main(void)
 				sprintf(debugString,"%02X ",temp);
 				LCDstringDefinedPos("OK",0,0);
 				LCDstringDefinedPos(debugString,0,1);	
-				loopDelay = 2000;
 			} else {				
 				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
 				LCDstringDefinedPos("ERR",0,0);
 				LCDstringDefinedPos(debugString,0,1);	
-				loopDelay = 2000;
 			} 
 		
 			break;		
@@ -257,26 +171,30 @@ int main(void)
 			//digipot_status = Pot_wiper_write(POT100k,0xDF);	
 			digipot_status = Pot_wiper_increment(POT100k);			
 			if (digipot_status == CMD_OK) {
-				loopDelay = 10;
+				digipot_status = Pot_wiper_read(POT100k,&temp );	
+				sprintf(debugString,"%02X ",temp);
+				LCDstringDefinedPos("OK",0,0);
+				LCDstringDefinedPos(debugString,0,1);	
 			} else {				
 				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
 				LCDstringDefinedPos("ERR",0,0);
 				LCDstringDefinedPos(debugString,0,1);	
-				loopDelay = 2000;
 			}
 			
 			break;
 		case ROTARY_CCW: 
 			LCDclr();
 			//digipot_status = Pot_wiper_write(POT100k,0x20);	
-			digipot_status = Pot_wiper_increment(POT100k);			
+			digipot_status = Pot_wiper_decrement(POT100k);			
 			if (digipot_status == CMD_OK) {
-				loopDelay = 10;
+				digipot_status = Pot_wiper_read(POT100k,&temp );	
+				sprintf(debugString,"%02X ",temp);
+				LCDstringDefinedPos("OK",0,0);
+				LCDstringDefinedPos(debugString,0,1);	
 			} else {				
 				sprintf(debugString,"%02X ", (uint8_t)digipot_status);
 				LCDstringDefinedPos("ERR",0,0);
 				LCDstringDefinedPos(debugString,0,1);	
-				loopDelay = 2000;
 			}
 			break;
 		default:
@@ -398,9 +316,10 @@ void MX_DMA_Init(void)
   /* DMA interrupt init */
   HAL_NVIC_SetPriority(DMA1_Ch1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Ch1_IRQn);
+  HAL_NVIC_SetPriority(DMA1_Ch2_3_DMA2_Ch1_2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
 
 }
-
 
 /** Configure pins as 
         * Analog 
